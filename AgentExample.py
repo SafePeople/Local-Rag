@@ -1,34 +1,42 @@
 # Import relevant functionality
 
-#would need langchain_anthropic for this example
-# but also need api key for tavily search results 
-from langchain_anthropic import ChatAnthropic
-from langchain_community.tools.tavily_search import TavilySearchResults
-from langchain_core.messages import HumanMessage
+
+from langchain_community.tools import tool
+from langchain_community.chat_models import ChatOllama
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.prebuilt import create_react_agent
+from langchain_core.tools import render_text_description
+from langchain import hub
+from langchain.agents import AgentExecutor, create_react_agent
+
+#### Make function to interact with LLM
+
+@tool
+def add_two_tool(input: int) -> int:
+    """Applies a magic function to an input."""
+    return input + 2
+
 
 # Create the agent
 memory = MemorySaver()                                                  
-model = ChatAnthropic(model_name="claude-3-sonnet-20240229")
-search = TavilySearchResults(max_results=2)
-tools = [search]
-agent_executor = create_react_agent(model, tools, checkpointer=memory)
+model = ChatOllama(model="llama3.1")
+tools = [add_two_tool]
 
-#MemorySaver (checkpointer=memory)
-#Model reference
-#tools list
+# a very special prompt embodying the essence of ReAct
+prompt = hub.pull("hwchase17/react-json")
+prompt = prompt.partial(
+    tools=render_text_description(tools),
+    tool_names=", ".join([t.name for t in tools]),
+)
+
+agent = create_react_agent(model, tools, prompt)
+agent_executor = AgentExecutor(agent=agent, tools=tools, handle_parsing_errors=True, verbose=False, format="json")
+
 
 # Use the agent
-config = {"configurable": {"thread_id": "abc123"}}
-for chunk in agent_executor.stream(
-    {"messages": [HumanMessage(content="hi im bob! and i live in sf")]}, config
-):
-    print(chunk)
-    print("----")
+while True:
+    user_query = input("Enter your query (or 'quit' to exit): ")
+    if user_query.lower() == 'quit':
+        break
 
-for chunk in agent_executor.stream(
-    {"messages": [HumanMessage(content="whats the weather where I live?")]}, config
-):
-    print(chunk)
-    print("----")
+    response = agent_executor.invoke({"input": user_query})
+    print(f"Response: {response}")
