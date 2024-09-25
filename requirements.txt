@@ -1,0 +1,6 @@
+langchain
+langchain-ollama
+langchain-community
+duckduckgo-search
+jq
+langchain-chroma
