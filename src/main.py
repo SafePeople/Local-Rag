@@ -3,6 +3,8 @@ import os
 from langchain_community.document_loaders import TextLoader, PyPDFLoader, JSONLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_ollama import OllamaEmbeddings
+from langchain_ollama.llms import OllamaLLM
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_chroma import Chroma
 
 def load_document(file):
@@ -38,9 +40,12 @@ def get_vector_storage():
 
 def main():
     storage = get_vector_storage()
-    prompt = "bee"
+    prompt = "CS 489R"
     docs = storage.similarity_search(prompt)
-    print(docs)
+    documents = list(map(lambda x: x.page_content, docs))
+    print(documents)
+
+    # model = OllamaLLM(model="llama3.1")
 
 
 if __name__ == "__main__":

@@ -50,11 +50,13 @@ memory = ConversationBufferMemory(memory_key="chat_history")
 def query_model(query: str) -> str:
     """Query the Ollama model with a given prompt."""
     return ollama_llm.invoke(query)
+
 @tool
 def search_storage(query: str) -> str:
     """Search the vector storage for the most relevant document."""
     storage = get_vector_storage()
     return storage.similarity_search(query)
+
 @tool
 def exit_agent(reason: str):
     """Use this tool to exit the agent when the task is complete."""
@@ -62,8 +64,8 @@ def exit_agent(reason: str):
 
 # Define tools for the agent
 tools = [
-    query_model,
     search_storage,
+    query_model,
     exit_agent
 ]
 
@@ -77,5 +79,5 @@ agent = initialize_agent(
 )
 
 # Run the agent on a task
-respones = agent.run("What is the square root of 16?")
+respones = agent.run("What is the name of the ragtag team in CS 489R, use the search_storage tool to get additional info the feed that to the model")
 print(respones)
