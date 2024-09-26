@@ -16,12 +16,6 @@ RESET_COLOR = '\033[0m'
 # Initialize the Ollama model and memory from langchain
 ollama_llm = Ollama(model="llama3.1")
 memory = ConversationSummaryMemory(llm=ollama_llm)
-# prompt = PromptTemplate(
-#     input_variables = ["query"],
-#     template = "Here is the answer to your question: {query}"
-# )
-# ollama_chain = LLMChain(llm=ollama_llm, prompt=prompt)
-
 
 # Setup tools
 @tool
