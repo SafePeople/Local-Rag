@@ -1,10 +1,5 @@
 from langchain_community.llms.ollama import Ollama
 from langchain.memory import ConversationSummaryMemory
-<<<<<<< HEAD
-=======
-from langchain.chains.llm import LLMChain
-from transformers import pipeline
->>>>>>> 655ef1b (Works but without sentiment search.)
 from langchain_core.tools import tool
 from langchain.agents import initialize_agent
 from langchain.agents import AgentType
@@ -19,15 +14,6 @@ RESET_COLOR = '\033[0m'
 # Initialize the Ollama model and memory from langchain
 ollama_llm = Ollama(model="llama3.1")
 memory = ConversationSummaryMemory(llm=ollama_llm)
-<<<<<<< HEAD
-=======
-# prompt = PromptTemplate(
-#     input_variables = ["query"],
-#     template = "Here is the answer to your question: {query}"
-# )
-# ollama_chain = LLMChain(llm=ollama_llm, prompt=prompt)
-
->>>>>>> 655ef1b (Works but without sentiment search.)
 
 # Setup tools
 @tool
