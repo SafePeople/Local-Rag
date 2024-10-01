@@ -1,5 +1,5 @@
 from langchain_community.llms.ollama import Ollama
-from langchain.memory import ConversationSummaryMemory
+from langchain.memory import ConversationBufferMemory
 from langchain_core.tools import tool
 from langchain.agents import initialize_agent
 from langchain.agents import AgentType
@@ -88,7 +88,7 @@ def rag_chain(vectors, prompt, llm):
     return ragChain
 
 # Load documents and create vectors
-file_path = "src/data/new_data.txt"
+file_path = "src/data/paper.pdf"
 documents = load_documents(file_path)
 vectors = create_vectors(documents)
 
@@ -97,18 +97,22 @@ prompt = PromptTemplate(template="Answer the following question based on the giv
 
 # Initialize the Ollama model and memory from langchain
 ollama_llm = Ollama(model="llama3.1")
-memory = ConversationSummaryMemory(llm=ollama_llm)
+memory = ConversationBufferMemory(llm=ollama_llm)
 ragChain = rag_chain(vectors, prompt, ollama_llm)
 
 # Setup tools
 @tool
 def query_model(query: str) -> str:
     """Query the Ollama model with imported documents using the given prompt."""
-    return ragChain.invoke(query)
+    response = ragChain.invoke(query)
+    if "final" in response:
+        return exit_agent("Question has been answered.")
+    else:
+        return response
 
 @tool
 def exit_agent(reason: str):
-    """Use this tool to exit the agent when the query has been answered."""
+    """Use this tool to exit the agent when the question has been answered."""
     return f"Exiting agent: {reason}"
 
 # Define tools for the agent
@@ -123,7 +127,8 @@ agent = initialize_agent(
     ollama_llm,
     agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
     memory=memory,
-    verbose=True
+    verbose=True,
+    
 )
 
 while True:
@@ -131,5 +136,6 @@ while True:
     if user_input.lower() == 'quit':
         break
     # Run the agent on a task
+    agent.handle_parsing_errors = True
     respones = agent.run(user_input)
     print(respones)
