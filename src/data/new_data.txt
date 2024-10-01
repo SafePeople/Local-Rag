@@ -1,1 +1,18 @@
-There was once a CS class in uvu called CS 489R (I forgot the name) and in that class there was a group of ragtags people whose name nobody knows but the group name was "Hey thre"
+Subject: CS-489R-601 Class Petition
+Dear George Rudolph,
+We, the students of CS-489R-601, respectfully request that the department take immediate action to address the ongoing issues with this course. Many of us are relying on this class to fulfill graduation requirements this semester, and any further delays would significantly impact our careers, relationships, and personal lives. We enrolled in this new capstone course with the belief that it would enhance our resumes and prepare us for professional opportunities, but the current situation has left us concerned and frustrated.
+We understand that this may be a challenging time for the department, as it is for us, and we appreciate your careful attention to this matter. Our goal is to find a resolution that allows us to complete the course in a timely manner without jeopardizing our academic or professional futures.
+Additionally, we have serious concerns about the conduct of Ken Patey, who has been leading the majority of the class sessions. Since his involvement from the second lecture onward, he has dominated 4 out of 5 lectures, disrupting Majid 'MJ' Memari’s ability to effectively teach. Ken’s presence has created confusion and frustration among students due to:
+A lack of clear goals and instructions.
+Disorganized lesson plans, often developed at the last minute.
+Frequent promises that are outside his authority to make.
+A hostile learning environment, where students are repeatedly pressured into tasks they do not understand or are not prepared for.
+Moreover, several students have reported being approached by Ken with inappropriate and unethical requests, including being asked to steal code from the university and fellow students in exchange for favorable positions at his startup companies. These actions are not only unethical but also potentially illegal.
+We ask that these concerns be taken seriously and that appropriate steps be taken to restore the integrity of the course. We believe that swift action is necessary to prevent further harm to the students and the university community.
+Thank you for your attention to this matter. We hope to work together to resolve these issues promptly.
+Sincerely,
+
+Cade Anderson, Brandon Lee, Diana Cervantes, James Critchlow, Brancen Clement, Fisher Wells, Jay-Alexander Elliot
+
+On behalf of the students of CS-489R-601
+ 
