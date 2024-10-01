@@ -70,7 +70,7 @@ def create_vectors(documents):
     Returns:
     FAISS: FIASS Vector
     '''
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-minilm-L6-v2")
     split_docs = split_document(documents)
     vectors = FAISS.from_documents(split_docs, embeddings)
     return vectors
