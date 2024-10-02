@@ -93,7 +93,7 @@ documents = load_documents(file_path)
 vectors = create_vectors(documents)
 
 # Define the prompt template
-prompt = PromptTemplate(template="Answer the following question based on the given context: {context}. Question: {question}", input_variables=["context", "question"])
+prompt = PromptTemplate(template="Answer the following question based on the given context: {context}. If the answer has been found stop the agent. Question: {question}", input_variables=["context", "question"])
 
 # Initialize the Ollama model and memory from langchain
 ollama_llm = Ollama(model="llama3.1")
@@ -102,22 +102,36 @@ ragChain = rag_chain(vectors, prompt, ollama_llm)
 
 # Setup tools
 @tool
-def query_model(query: str) -> str:
+def query_model_with_documents(query: str) -> str:
     """Query the Ollama model with imported documents using the given prompt."""
     response = ragChain.invoke(query)
-    if "final" in response:
-        return exit_agent("Question has been answered.")
-    else:
-        return response
+    exit_phrases = ["final", "exit", "done", "stop", "start fresh", "help you"]
+    for phrase in exit_phrases:
+        if phrase in response:
+            return exit_agent("Question has been answered.")
+        else:
+            return response
+        
+@tool
+def query_model(query: str) -> str:
+    """Query the Ollama model using the given prompt. Useful if the documents don't have the information needed."""
+    response = ollama_llm.invoke(query)
+    exit_phrases = ["final", "exit", "done", "stop", "start fresh", "help you"]
+    for phrase in exit_phrases:
+        if phrase in response:
+            return exit_agent("Question has been answered.")
+        else:
+            return response
 
 @tool
 def exit_agent(reason: str):
-    """Use this tool to exit the agent when the question has been answered."""
+    """Use this tool to stop the agent when the question has been answered and let the user ask a new question."""
     return f"Exiting agent: {reason}"
 
 # Define tools for the agent
 tools = [
     query_model,
+    query_model_with_documents,
     exit_agent
 ]
 
@@ -137,5 +151,5 @@ while True:
         break
     # Run the agent on a task
     agent.handle_parsing_errors = True
-    respones = agent.run(user_input)
-    print(respones)
+    respones = agent.invoke(user_input)
+    print(respones['output'])
