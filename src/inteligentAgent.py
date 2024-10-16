@@ -1,4 +1,10 @@
+# For Ollama and LangChain Chain
 from langchain_community.llms.ollama import Ollama
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
+
+# For file vector storage
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import FAISS
 from langchain_community.document_loaders import PyPDFLoader, TextLoader, JSONLoader, CSVLoader
 from langchain.embeddings import HuggingFaceEmbeddings
@@ -13,12 +19,94 @@ YELLOW = '\033[93m'
 NEON_GREEN = '\033[92m'
 RESET_COLOR = '\033[0m'
 
-# Load llama3.2 model
-ollama_llm = Ollama(model='llama3.2')
+# def load_document():
+#     '''
+#     Load documents from a file
+
+#     Args:
+#     file_path: (str)
+
+#     Returns:
+#     List: list of documents
+#     '''
+
+#     # Loop for adding new docs
+#     documents = []
+#     user_input = ""
+#     while user_input != "q":
+#         print("\nNote: if doc is already in storage or was added previously it is still in storage")
+#         print("Would be helpful if we could check if doc is in storage already or not, but idk how")
+#         print("You can reset the stored vector storage by deleting the vectorstore directory\n")
+#         print("You can enter files to be loaded here, or type 'q' to continue...")
+#         user_input = input("Enter file path: ")
+
+#         if os.path.exists(user_input):
+#             _, ext = os.path.splitext(user_input)
+#             if ext == '.pdf':
+#                 loader = PyPDFLoader(user_input)
+#             elif ext == '.txt':
+#                 loader = TextLoader(user_input)
+#             elif ext == '.json':
+#                 loader = JSONLoader(user_input)
+#             elif ext == '.csv':
+#                 loader = CSVLoader(user_input)
+#             else:
+#                 raise ValueError(f"Unsupported file format: {ext}")
+            
+#             documents.append(loader.load())
+#             print(f"{user_input} was successfully added")
+#     return documents
+
+# # This function will split uploaded documents into chunks for better processing
+# def split_document(document):
+#     '''
+#     Split documents into chunks
+
+#     Args:
+#     documents: (list)
+
+#     Returns:
+#     List: list of split documents
+#     '''
+
+#     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+#     split_docs = text_splitter.split_documents(document)
+#     return split_docs
+
+# def create_vectors(documents, storage: FAISS):
+#     '''
+#     Create vectors for the documents
+
+#     Args:
+#     documents: (list)
+#     storage: storage vector to add embeddings to
+
+#     Returns:
+#     None
+#     '''
+#     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+#     for document in documents:
+#         split_docs = split_document(document)
+#         vectors = FAISS.from_documents(split_docs, embeddings)
+#         storage.merge_from(vectors)
+#     return 
+
+# def rag_chain(vectors, prompt, llm):
+    
+#     retriever = vectors.as_retriever(search_type="similarity", search_kwargs={"k": 3})
+
+#     ragChain = (
+#         {"context": retriever, "question": RunnablePassthrough()}
+#         | prompt
+#         | llm
+#         | StrOutputParser()
+#     )
+#     return ragChain
 
 def generate_text(prompt: str) -> str:
     '''Generate text using the llama3.2 model'''
     response = ollama_llm.invoke(prompt)
+    # response = ragChain.invoke(prompt)
     return response
 
 def ask_question(prompt: str):
@@ -26,19 +114,27 @@ def ask_question(prompt: str):
     response = generate_text(prompt)
     return response
 
-def prepare_embeddings():
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    embeding_model_dimentions = 384
-    index = faiss.IndexFlatL2(embeding_model_dimentions)
-    storage = FAISS( embeddings, index, InMemoryDocstore(), {})
+# ### Load documents and create vectors
+# # Create Vector Store
+# embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+# embeding_model_dimentions = 384
+# index = faiss.IndexFlatL2(embeding_model_dimentions)
+# storage = FAISS( embeddings, index, InMemoryDocstore(), {})
 
-    # Load Local saved data
-    if os.path.exists("vectorstore"):
-        storage = FAISS.load_local("vectorstore", embeddings, allow_dangerous_deserialization=True)
+# # Load Local saved data
+# if os.path.exists("vectorstore"):
+#     storage = FAISS.load_local("vectorstore", embeddings, allow_dangerous_deserialization=True)
 
-    # Save storage for faster loading next time
-    storage.save_local("vectorstore")
-    return storage
+# documents = load_document()
+# # combine new files to storage
+# create_vectors(documents, storage)
+
+# # Save storage for faster loading next time
+# storage.save_local("vectorstore")
+
+# # Load llama3.2 model
+ollama_llm = Ollama(model='llama3.2')
+# ragChain = rag_chain(vectors=storage, llm=ollama_llm)
 
 def main():
     while True:

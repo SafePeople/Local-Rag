@@ -6,7 +6,7 @@ import streamlit as st
 from inteligentAgent import ask_question
 
 # Title of the app
-st.title("ChatOllama")
+st.title("Chat Ollama")
 
 # Sidebar for user inputs
 st.sidebar.header("Documents")
