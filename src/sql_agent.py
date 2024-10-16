@@ -1,12 +1,12 @@
 from langchain_community.llms.ollama import Ollama
 from langchain.memory import ConversationBufferMemory
 from langchain_core.tools import tool
-from langchain.agents import initialize_agent
+from langchain_community.agent_toolkits import create_sql_agent
 from langchain.agents import AgentType
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.document_loaders import PyPDFLoader, TextLoader, JSONLoader, CSVLoader
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_community.document_loaders import PyPDFLoader, TextLoader, JSONLoader, CSVLoader
 from langchain.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
@@ -76,7 +76,7 @@ def create_vectors(documents, storage: FAISS):
     Returns:
     None
     '''
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embeddings = HuggingFaceBgeEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     for document in documents:
         split_docs = split_document(document)
         vectors = FAISS.from_documents(split_docs, embeddings)
@@ -97,7 +97,7 @@ def rag_chain(vectors, prompt, llm):
 
 ### Load documents and create vectors
 # Create Vector Store
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+embeddings = HuggingFaceBgeEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 embeding_model_dimentions = 384
 index = faiss.IndexFlatL2(embeding_model_dimentions)
 storage = FAISS( embeddings, index, InMemoryDocstore(), {})
@@ -143,7 +143,7 @@ ragChain = rag_chain(storage, prompt, ollama_llm)
     works better with create_sql_agent thingy'''
 protocol = "mysql"
 user = "root"
-password = ""
+password = "*Supernova54*"
 hosts = f"{user}:{password}@localhost"
 port = "3306"
 database_name = "world"
@@ -171,17 +171,17 @@ def exit_agent(reason: str):
 tools = [
     query_model,
     exit_agent,
-    *toolkit_tools
+    # *toolkit_tools
 ]
 
 # Initialize the agent with ollama and tools
-agent = initialize_agent(
-    tools,
-    ollama_llm,
+agent = create_sql_agent(
+    extra_tools=tools,
+    llm=ollama_llm,
     agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
     memory=memory,
     verbose=True,
-    
+    db=db,
 )
 
 while True:
@@ -190,5 +190,5 @@ while True:
         break
     # Run the agent on a task
     agent.handle_parsing_errors = True
-    respones = agent.run(user_input)
+    respones = agent.invoke(user_input)
     print(respones)
