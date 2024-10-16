@@ -1,3 +1,7 @@
+'''
+run this command in the terminal to start the app
+streamlit run src/chatOllama.py
+'''
 import streamlit as st
 from inteligentAgent import ask_question
 
