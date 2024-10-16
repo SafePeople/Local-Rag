@@ -3,6 +3,7 @@ from langchain.vectorstores import FAISS
 from langchain_community.document_loaders import PyPDFLoader, TextLoader, JSONLoader, CSVLoader
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain_community.docstore.in_memory import InMemoryDocstore
+from rag_agent import load_document, create_vectors
 import faiss
 import os
 
@@ -15,6 +16,7 @@ RESET_COLOR = '\033[0m'
 
 # Load llama3.2 model
 ollama_llm = Ollama(model='llama3.2')
+documents = []
 
 def generate_text(prompt: str) -> str:
     '''Generate text using the llama3.2 model'''
@@ -26,11 +28,25 @@ def ask_question(prompt: str):
     response = generate_text(prompt)
     return response
 
+def prompt_docs():
+    user_input = ""
+    while user_input != 'q':
+        user_input = input("\nenter docs, or 'q' to exit\n")
+
+        if os.path.exists(user_input):
+            doc = load_document(user_input)
+            documents.append(doc)
+            print(f"{user_input} was successfully added")
+
 def prepare_embeddings():
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embedding_model = "sentence-transformers/all-MiniLM-L6-v2"
+    embeddings = HuggingFaceEmbeddings(model_name=embedding_model)
     embeding_model_dimentions = 384
     index = faiss.IndexFlatL2(embeding_model_dimentions)
     storage = FAISS( embeddings, index, InMemoryDocstore(), {})
+
+    prompt_docs()
+    create_vectors(documents, storage, embedding_model)
 
     # Load Local saved data
     if os.path.exists("vectorstore"):

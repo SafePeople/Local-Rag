@@ -62,7 +62,7 @@ def split_document(document):
     split_docs = text_splitter.split_documents(document)
     return split_docs
 
-def create_vectors(documents, storage: FAISS):
+def create_vectors(documents, storage: FAISS, embedding_model):
     '''
     Create vectors for the documents
 
@@ -73,7 +73,7 @@ def create_vectors(documents, storage: FAISS):
     Returns:
     None
     '''
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embeddings = HuggingFaceEmbeddings(model_name=embedding_model)
     for document in documents:
         split_docs = split_document(document)
         vectors = FAISS.from_documents(split_docs, embeddings)
