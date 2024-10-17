@@ -14,37 +14,37 @@ import subprocess
 import time
 import requests
 
-# Function to start Ollama service
-def start_ollama():
-    # Run 'ollama serve' in the background
-    try:
-        # Start Ollama service using subprocess
-        subprocess.Popen(["ollama", "serve"])
-        print("Starting Ollama service...")
-    except Exception as e:
-        print(f"Failed to start Ollama: {e}")
+# # Function to start Ollama service
+# def start_ollama():
+#     # Run 'ollama serve' in the background
+#     try:
+#         # Start Ollama service using subprocess
+#         subprocess.Popen(["ollama", "serve"])
+#         print("Starting Ollama service...")
+#     except Exception as e:
+#         print(f"Failed to start Ollama: {e}")
 
-# Function to check if Ollama is running
-def is_ollama_running():
-    try:
-        # Try sending a request to Ollama's API to check if it's running
-        response = requests.get("http://localhost:11434/api/models")
-        if response.status_code == 200:
-            return True
-    except requests.exceptions.ConnectionError:
-        return False
-    return False
+# # Function to check if Ollama is running
+# def is_ollama_running():
+#     try:
+#         # Try sending a request to Ollama's API to check if it's running
+#         response = requests.get("http://localhost:11434/api/models")
+#         if response.status_code == 200:
+#             return True
+#     except requests.exceptions.ConnectionError:
+#         return False
+#     return False
 
-# Start Ollama if it's not already running
-if not is_ollama_running():
-    start_ollama()
-    time.sleep(5)  # Wait a few seconds to ensure the service is up
+# # Start Ollama if it's not already running
+# if not is_ollama_running():
+#     start_ollama()
+#     time.sleep(5)  # Wait a few seconds to ensure the service is up
 
-# Confirm Ollama is running
-if is_ollama_running():
-    print("Ollama is running and ready!")
-else:
-    print("Failed to start Ollama service.")
+# # Confirm Ollama is running
+# if is_ollama_running():
+#     print("Ollama is running and ready!")
+# else:
+#     print("Failed to start Ollama service.")
 
 
 ollama_llm = Ollama(model='llama3.2')
