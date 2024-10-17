@@ -33,7 +33,7 @@ st.title("Chat Ollama")
 # Sidebar for user inputs
 st.sidebar.header("Documents")
 # Allow users to upload documents
-uploaded_files = st.sidebar.file_uploader("Upload documents", type=["pdf", "txt"], accept_multiple_files=True)
+uploaded_files = st.sidebar.file_uploader("",type=["pdf", "txt"], accept_multiple_files=True)
 
 # Process uploaded documents and create a vector store
 if uploaded_files:
@@ -50,7 +50,7 @@ if uploaded_files:
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     vector_store = FAISS.from_texts(documents, embeddings)
 
-    st.success("Documents uploaded and processed!")
+    st.sidebar.success("Documents uploaded and processed!")
 
 # Start chat
 if 'chat_history' not in st.session_state:
@@ -69,7 +69,7 @@ if user_input and 'vector_store' in locals():
     # Create a context for the question
     context = "\n".join([doc.page_content for doc in relevant_docs])
     response = ask_ollama(f"{context}\n\nQuestion: {user_input}\nAnswer:")
-    
+
     st.session_state['chat_history'].append({'role': 'ai', 'content': response})
 
 for chat in st.session_state['chat_history']:
