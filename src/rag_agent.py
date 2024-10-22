@@ -126,7 +126,10 @@ storage.save_local("vectorstore")
 ###
 
 # Define the prompt template
-prompt = PromptTemplate(template="Answer the following question based on the given context: {context}. If the answer has been found stop the agent. Question: {question}", input_variables=["context", "question"])
+prompt = PromptTemplate(
+    template="Answer the following question based on the given context: {context}. If the answer is found, stop immediately and do not continue searching. Only provide the best possible answer once. Question: {question}",
+    input_variables=["context", "question"]
+)
 
 # Initialize the Ollama model and memory from langchain
 ollama_llm = Ollama(model="llama3.1")
@@ -138,12 +141,12 @@ ragChain = rag_chain(storage, prompt, ollama_llm)
 def query_model_with_documents(query: str) -> str:
     """Query the Ollama model with imported documents using the given prompt."""
     response = ragChain.invoke(query)
-    exit_phrases = ["final", "exit", "done", "stop", "start fresh", "help you"]
+    exit_phrases = ["final", "answer", "exit", "done", "stop", "start fresh", "help you"]
+    # Check if the response contains any exit phrases
     for phrase in exit_phrases:
         if phrase in response:
             return exit_agent("Question has been answered.")
-        else:
-            return response
+    return response # Return the response if no exit condition is met
         
 @tool
 def query_model(query: str) -> str:
@@ -177,8 +180,9 @@ agent = initialize_agent(
     verbose=True,
     
 )
-
-while True:
+max_iterations = 5 # Maximum number of iterations
+iteration_count = 0
+while iteration_count < max_iterations:
     user_input = input(YELLOW + "Ask your question (or type 'quit' to exit): " + RESET_COLOR)
     if user_input.lower() == 'quit':
         break
@@ -186,3 +190,11 @@ while True:
     agent.handle_parsing_errors = True
     respones = agent.invoke(user_input)
     print(respones['output'])
+    exit_phrases = ["Exiting agent:", "Question has been answered.", "final", "done", "exit"]
+
+    if any(phrase in respones['output'] for phrase in exit_phrases):
+        print("Agent task completed. Exiting...")
+        break
+    iteration_count += 1
+if iteration_count >= max_iterations:
+    print("Maximum iterations reached. Exiting...")
