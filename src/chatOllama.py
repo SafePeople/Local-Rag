@@ -10,6 +10,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 
+
 import subprocess
 import time
 import requests
