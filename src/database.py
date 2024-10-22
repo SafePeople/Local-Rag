@@ -9,8 +9,8 @@ cursor = conn.cursor()
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS documents (
         id INTEGER PRIMARY KEY,
-        content TEXT,
-        embedding BLOB)
+        file_name TEXT,
+        content TEXT)
 ''')
 
 # Create a table to store user queries and the LLM responses
@@ -26,12 +26,13 @@ conn.commit()
 conn.close()
 
 # Function to add documents to the database
-def add_document(content, embedding):
+def add_document(file_name: str, content: list[str]):
     conn = sqlite3.connect('llm_data.db')
     cursor = conn.cursor()
+    content = '\n'.join(content)
     cursor.execute('''
-        INSERT INTO documents (content, embedding) VALUES (?, ?)
-    ''', (content, embedding))
+        INSERT INTO documents (file_name, content) VALUES (?, ?)
+    ''', (file_name, content))
     conn.commit()
     conn.close()
 
@@ -46,11 +47,11 @@ def add_query(user_input, response):
     conn.close()
 
 # Function to fetch documents from the database
-def fetch_documents():
+def fetch_documents() -> list[str]:
     conn = sqlite3.connect('llm_data.db')
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT content FROM documents
+        SELECT file_name, content FROM documents
     ''')
     documents = cursor.fetchall()
     conn.close()
@@ -65,3 +66,28 @@ def fetch_queries():
     queries = cursor.fetchall()
     conn.close()
     return queries
+
+def clear_table(table_name):
+    conn = sqlite3.connect('llm_data.db')
+    cursor = conn.cursor()
+    cursor.execute(f'''
+        DELETE FROM {table_name}
+    ''')
+
+    # Create a table to store the documents and their embeddings
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS documents (
+            id INTEGER PRIMARY KEY,
+            file_name TEXT,
+            content TEXT)
+    ''')
+    # Create a table to store user queries and the LLM responses
+    cursor.execute(''' 
+        CREATE TABLE IF NOT EXISTS queries (
+            id INTEGER PRIMARY KEY,
+            user_input TEXT,
+            response TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)
+    ''')
+    conn.commit()
+    conn.close()
