@@ -113,10 +113,10 @@ if documents and st.session_state['vectors'] is None:
 
     # st.write(split_doc)
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    st.session_state['vectors'] = FAISS.from_texts(split_doc, embeddings)
+    vectors = FAISS.from_texts(split_doc, embeddings)
     st.sidebar.success("Vectors created!")
 else:
-    st.session_state['vectors'] = None
+    vectors = None
     
 
 if st.sidebar.button("show documents"):
@@ -155,7 +155,7 @@ if user_input:
     else:
         # Load llama3.2 model into the rag chain
         ragChain = rag_chain(vectors=st.session_state['vectors'], prompt=prompt, llm=ollama_llm)
-        similar = st.session_state['vectors'].similarity_search_with_score(user_input)
+        similar = vectors.similarity_search_with_score(user_input)
         for doc in similar:
             if doc[1] < 1.7:
                 response = ragChain.invoke(user_input)
