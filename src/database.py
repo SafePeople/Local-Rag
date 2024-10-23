@@ -26,10 +26,9 @@ conn.commit()
 conn.close()
 
 # Function to add documents to the database
-def add_document(file_name: str, content: list[str]):
+def add_document(file_name: str, content: str):
     conn = sqlite3.connect('llm_data.db')
     cursor = conn.cursor()
-    content = '\n'.join(content)
     cursor.execute('''
         INSERT INTO documents (file_name, content) VALUES (?, ?)
     ''', (file_name, content))

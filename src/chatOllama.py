@@ -62,7 +62,6 @@ def ask_ollama(user_input):
     return ollama_llm.invoke(user_input)
 
 def load_document(file):
-    # st.write(file)
     if file.type == 'application/pdf':
         reader = PdfReader(file)
         text = ""
@@ -107,16 +106,17 @@ if uploaded_files:
 # Create embeddings for the documents
 documents = fetch_documents()
 if documents and st.session_state['vectors'] is None:
+    # st.write(documents)
     # Split the texts into manageable chunks
-    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=100, separator="\n")
     split_doc = text_splitter.split_text("\n".join(text for _, text in documents))
 
     # st.write(split_doc)
+
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     vectors = FAISS.from_texts(split_doc, embeddings)
+    st.session_state['vectors'] = vectors
     st.sidebar.success("Vectors created!")
-else:
-    vectors = None
     
 
 if st.sidebar.button("show documents"):
@@ -152,11 +152,14 @@ if user_input:
     # Perform a similarity search in the vector store
     if st.session_state['vectors'] is None:
         response = ask_ollama(f"{user_input}\nAnswer:")
+        add_query(user_input, response)
     else:
+        vectors = st.session_state['vectors']
         # Load llama3.2 model into the rag chain
-        ragChain = rag_chain(vectors=st.session_state['vectors'], prompt=prompt, llm=ollama_llm)
+        ragChain = rag_chain(vectors=vectors, prompt=prompt, llm=ollama_llm)
         similar = vectors.similarity_search_with_score(user_input)
         for doc in similar:
+            st.write(doc)
             if doc[1] < 1.7:
                 response = ragChain.invoke(user_input)
                 add_query(user_input, f'FROM TEXT: \n {response}')
